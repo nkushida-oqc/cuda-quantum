@@ -147,6 +147,45 @@ async def getJob(n=1):
     return [uuid.uuid4() for _ in range(n)]
 
 
+@app.post("/{deviceId}/tasks")
+async def reserveJobId(request: TaskIdRequest):
+    n = request.task_count
+    return [uuid.uuid4() for _ in range(n)]
+
+
+@app.get("/admin/qpu")
+async def qetQpu(authentication_token: str = Header(...)):
+
+    if authentication_token != "fake_auth_token":
+        raise HTTPException(status_code=403, detail="Permission denied")
+
+    data = {
+        "items": [{
+            "active": True,
+            "created_at": "2024-04-09T14:24:50.918020+00:00",
+            "created_by": "11111111-1111-1111-1111-111111111111",
+            "feature_set": {
+                "always_on": True,
+                "qubit_count": 8,
+                "simulator": True
+            },
+            "generation": -1,
+            "id": "qpu:uk:-1:1234567890",
+            "name": "OQC Mock Server",
+            "region": "uk",
+            "status": "ACTIVE",
+            "updated_at": "2024-07-29T14:54:46.948951+00:00",
+            "updated_by": "11111111-1111-1111-1111-111111111111",
+            "url": "http://localhost:62442/1234567890"
+        }],
+        "page": 1,
+        "per_page": 10,
+        "total": 2
+    }
+
+    return JSONResponse(content=data)
+
+
 def startServer(port):
     uvicorn.run(app, port=port, host='0.0.0.0', log_level="info")
 
